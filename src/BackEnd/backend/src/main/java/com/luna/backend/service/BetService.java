@@ -15,6 +15,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import java.time.LocalDateTime;
+
 @Service
 public class BetService {
 
@@ -67,4 +69,40 @@ public class BetService {
                 .map(b -> new BetResponse(b.getId(), b.getStake(), b.getOdds(), b.getPotentialPayout(), b.getStatus(), b.getCreatedAt()))
                 .toList();
     }
+
+    public BetResponse settle(Long betId, String resultRaw) {
+    String result = resultRaw.trim().toUpperCase();
+    if (!result.equals("WON") && !result.equals("LOST")) {
+        throw new IllegalArgumentException("result debe ser WON o LOST");
+    }
+
+    var bet = betRepository.findById(betId)
+            .orElseThrow(() -> new IllegalArgumentException("Apuesta no encontrada."));
+
+    if (!"PENDING".equals(bet.getStatus())) {
+        throw new IllegalArgumentException("La apuesta ya fue liquidada.");
+    }
+
+    bet.setStatus(result);
+
+    if (result.equals("WON")) {
+        walletRepo.save(WalletTransactionEntity.builder()
+                .user(bet.getUser())
+                .amount(bet.getPotentialPayout())
+                .type("PAYOUT")
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
+    var saved = betRepository.save(bet);
+
+    return new BetResponse(
+            saved.getId(),
+            saved.getStake(),
+            saved.getOdds(),
+            saved.getPotentialPayout(),
+            saved.getStatus(),
+            saved.getCreatedAt()
+    );
+}
 }
