@@ -6,6 +6,9 @@ import com.luna.backend.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.luna.backend.dto.LoginRequest;
+import com.luna.backend.dto.LoginResponse;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -18,8 +21,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@Valid @RequestBody RegisterRequest req) {
-        return authService.register(req);
-    }
+@ResponseStatus(HttpStatus.CREATED)
+public AuthResponse register(@Valid @RequestBody RegisterRequest req) {
+    return authService.register(req);
+}
+
+    @PostMapping("/login")
+public LoginResponse login(@Valid @RequestBody LoginRequest req) {
+    return authService.login(req);
+}
 }
