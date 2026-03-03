@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: apuestas-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: apuestasdb
+      MYSQL_USER: apuestas_user
+      MYSQL_PASSWORD: Apuestas#12345
+      MYSQL_ROOT_PASSWORD: Root#12345
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
